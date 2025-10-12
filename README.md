@@ -4,7 +4,7 @@ A little exercise to build a web application following an agile development proc
 
 ## Product vision statement
 
-See instructions. Delete this line and place the Product Vision Statement here.
+A streamlined mobile app that lets users log, rate, and track their seltzer consumption over time to discover personal favorites and monitor their bubbly habits.
 
 ## User stories
 
