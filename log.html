@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log Seltzer - SeltzerTracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">←</button>
+            <h1>Log New Seltzer</h1>
+        </div>
+
+        <div class="content">
+            <div class="form-container">
+                <form id="seltzerForm">
+                    <div class="form-group">
+                        <label class="form-label" for="brand">Brand</label>
+                        <input type="text" id="brand" class="form-input" placeholder="e.g., LaCroix, Spindrift, Bubly" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="flavor">Flavor</label>
+                        <input type="text" id="flavor" class="form-input" placeholder="e.g., Lime, Lemon, Cherry" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Rating</label>
+                        <div class="rating-container">
+                            <span class="star" data-rating="1">★</span>
+                            <span class="star" data-rating="2">★</span>
+                            <span class="star" data-rating="3">★</span>
+                            <span class="star" data-rating="4">★</span>
+                            <span class="star" data-rating="5">★</span>
+                        </div>
+                    </div>
+
+                    <div class="date-time">
+                        <div class="form-group">
+                            <label class="form-label" for="date">Date</label>
+                            <input type="date" id="date" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="time">Time</label>
+                            <input type="time" id="time" class="form-input" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="notes">Notes (Optional)</label>
+                        <textarea id="notes" class="form-textarea" placeholder="Any additional thoughts about this seltzer..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Photo (Optional)</label>
+                        <div class="photo-upload" onclick="document.getElementById('photo').click()">
+                            <div class="photo-icon">📷</div>
+                            <div>Tap to add photo</div>
+                            <input type="file" id="photo" accept="image/*" style="display: none;">
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" class="btn btn-secondary" onclick="goBack()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Seltzer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="nav-bar">
+            <a href="index.html" class="nav-item">
+                <div class="nav-icon">🏠</div>
+                <div>Home</div>
+            </a>
+            <a href="log.html" class="nav-item active">
+                <div class="nav-icon">📝</div>
+                <div>Log</div>
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-icon">📊</div>
+                <div>History</div>
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-icon">🔍</div>
+                <div>Search</div>
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-icon">👤</div>
+                <div>Profile</div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Set default date and time to now
+        const now = new Date();
+        document.getElementById('date').value = now.toISOString().split('T')[0];
+        document.getElementById('time').value = now.toTimeString().slice(0, 5);
+
+        // Star rating functionality
+        const stars = document.querySelectorAll('.star');
+        let currentRating = 0;
+
+        stars.forEach((star, index) => {
+            star.addEventListener('click', () => {
+                currentRating = index + 1;
+                updateStars();
+            });
+
+            star.addEventListener('mouseenter', () => {
+                highlightStars(index + 1);
+            });
+        });
+
+        document.querySelector('.rating-container').addEventListener('mouseleave', () => {
+            updateStars();
+        });
+
+        function highlightStars(rating) {
+            stars.forEach((star, index) => {
+                star.classList.toggle('active', index < rating);
+            });
+        }
+
+        function updateStars() {
+            highlightStars(currentRating);
+        }
+
+        // Form submission
+        document.getElementById('seltzerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                brand: document.getElementById('brand').value,
+                flavor: document.getElementById('flavor').value,
+                rating: currentRating,
+                date: document.getElementById('date').value,
+                time: document.getElementById('time').value,
+                notes: document.getElementById('notes').value,
+                photo: document.getElementById('photo').files[0]
+            };
+
+            console.log('Seltzer data:', formData);
+            alert('Seltzer logged! (This will connect to backend later)');
+            
+            // Reset form
+            this.reset();
+            currentRating = 0;
+            updateStars();
+            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('time').value = new Date().toTimeString().slice(0, 5);
+        });
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
