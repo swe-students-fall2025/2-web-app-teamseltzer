@@ -145,7 +145,7 @@ body {
     padding-bottom: 80px;
 }
 
-/* Form styles for log page */
+/* form styles for log page */
 .back-btn {
     position: absolute;
     left: 20px;
@@ -292,4 +292,154 @@ body {
 
 .btn-secondary:hover {
     background: #DEE2E6;
+}
+/* History page styles */
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 0 20px;
+}
+
+.history-header h2 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2C3E50;
+}
+
+.filter-btn {
+    background: #E9ECEF;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.filter-btn.active {
+    background: #00B4DB;
+    color: white;
+}
+
+.filter-group {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding: 0 20px;
+    flex-wrap: wrap;
+}
+
+.history-item {
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 0 20px 8px 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    position: relative;
+    transition: transform 0.2s;
+}
+
+.history-item.swiping {
+    transform: translateX(-80px);
+}
+
+.history-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.seltzer-details h4 {
+    font-size: 16px;
+    color: #2C3E50;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.seltzer-details p {
+    font-size: 14px;
+    color: #666;
+}
+
+.seltzer-rating {
+    color: #FF6B35;
+    font-size: 18px;
+    margin-right: 40px;
+}
+
+.swipe-actions {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.swipe-action {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.edit-action {
+    background: #00B4DB;
+}
+
+.delete-action {
+    background: #FF6B35;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+
+.empty-state-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.empty-state h3 {
+    font-size: 18px;
+    margin-bottom: 8px;
+    color: #2C3E50;
+}
+
+.empty-state p {
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.add-first-btn {
+    background: #00B4DB;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* Update the main content padding */
+.content {
+    padding-bottom: 80px;
+    padding-top: 0;
+}
+
+/* Ensure proper spacing */
+.form-container {
+    padding: 0;
 }

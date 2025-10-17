@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History - SeltzerTracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Seltzer History</h1>
+        </div>
+
+        <div class="content">
+            <div class="history-header">
+                <h2>Your Seltzers</h2>
+                <button class="filter-btn" onclick="toggleFilter()">Filter</button>
+            </div>
+
+            <div class="filter-group" id="filters" style="display: none;">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="5">5 Stars</button>
+                <button class="filter-btn" data-filter="4">4+ Stars</button>
+                <button class="filter-btn" data-filter="3">3+ Stars</button>
+                <button class="filter-btn" data-filter="lacroix">LaCroix</button>
+                <button class="filter-btn" data-filter="spindrift">Spindrift</button>
+            </div>
+
+            <div id="historyList">
+                <div class="history-item" data-rating="4" data-brand="lacroix">
+                    <div class="history-content">
+                        <div class="seltzer-details">
+                            <h4>LaCroix - Lime</h4>
+                            <p>2 hours ago</p>
+                        </div>
+                        <div class="seltzer-rating">★★★★☆</div>
+                    </div>
+                    <div class="swipe-actions">
+                        <button class="swipe-action edit-action" onclick="editSeltzer(1)">✏️</button>
+                        <button class="swipe-action delete-action" onclick="deleteSeltzer(1)">🗑️</button>
+                    </div>
+                </div>
+
+                <div class="history-item" data-rating="5" data-brand="spindrift">
+                    <div class="history-content">
+                        <div class="seltzer-details">
+                            <h4>Spindrift - Lemon</h4>
+                            <p>Yesterday</p>
+                        </div>
+                        <div class="seltzer-rating">★★★★★</div>
+                    </div>
+                    <div class="swipe-actions">
+                        <button class="swipe-action edit-action" onclick="editSeltzer(2)">✏️</button>
+                        <button class="swipe-action delete-action" onclick="deleteSeltzer(2)">🗑️</button>
+                    </div>
+                </div>
+
+                <div class="history-item" data-rating="3" data-brand="bubly">
+                    <div class="history-content">
+                        <div class="seltzer-details">
+                            <h4>Bubly - Cherry</h4>
+                            <p>2 days ago</p>
+                        </div>
+                        <div class="seltzer-rating">★★★☆☆</div>
+                    </div>
+                    <div class="swipe-actions">
+                        <button class="swipe-action edit-action" onclick="editSeltzer(3)">✏️</button>
+                        <button class="swipe-action delete-action" onclick="deleteSeltzer(3)">🗑️</button>
+                    </div>
+                </div>
+
+                <div class="history-item" data-rating="4" data-brand="lacroix">
+                    <div class="history-content">
+                        <div class="seltzer-details">
+                            <h4>LaCroix - Grapefruit</h4>
+                            <p>3 days ago</p>
+                        </div>
+                        <div class="seltzer-rating">★★★★☆</div>
+                    </div>
+                    <div class="swipe-actions">
+                        <button class="swipe-action edit-action" onclick="editSeltzer(4)">✏️</button>
+                        <button class="swipe-action delete-action" onclick="deleteSeltzer(4)">🗑️</button>
+                    </div>
+                </div>
+
+                <div class="history-item" data-rating="5" data-brand="spindrift">
+                    <div class="history-content">
+                        <div class="seltzer-details">
+                            <h4>Spindrift - Orange Mango</h4>
+                            <p>1 week ago</p>
+                        </div>
+                        <div class="seltzer-rating">★★★★★</div>
+                    </div>
+                    <div class="swipe-actions">
+                        <button class="swipe-action edit-action" onclick="editSeltzer(5)">✏️</button>
+                        <button class="swipe-action delete-action" onclick="deleteSeltzer(5)">🗑️</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-state-icon">🥤</div>
+                <h3>No seltzers yet</h3>
+                <p>Start tracking your seltzer consumption!</p>
+                <button class="add-first-btn" onclick="window.location.href='log.html'">Log Your First Seltzer</button>
+            </div>
+        </div>
+
+        <button class="add-button" onclick="window.location.href='log.html'">+</button>
+
+        <div class="nav-bar">
+            <a href="index.html" class="nav-item">
+                <div class="nav-icon">🏠</div>
+                <div>Home</div>
+            </a>
+            <a href="log.html" class="nav-item">
+                <div class="nav-icon">📝</div>
+                <div>Log</div>
+            </a>
+            <a href="history.html" class="nav-item active">
+                <div class="nav-icon">📊</div>
+                <div>History</div>
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-icon">🔍</div>
+                <div>Search</div>
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-icon">👤</div>
+                <div>Profile</div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        let currentFilter = 'all';
+
+        // Filter functionality
+        function toggleFilter() {
+            const filters = document.getElementById('filters');
+            filters.style.display = filters.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                currentFilter = this.dataset.filter;
+                filterHistory();
+            });
+        });
+
+        function filterHistory() {
+            const items = document.querySelectorAll('.history-item');
+            let visibleCount = 0;
+
+            items.forEach(item => {
+                const rating = parseInt(item.dataset.rating);
+                const brand = item.dataset.brand;
+                let show = true;
+
+                switch(currentFilter) {
+                    case 'all':
+                        show = true;
+                        break;
+                    case '5':
+                        show = rating === 5;
+                        break;
+                    case '4':
+                        show = rating >= 4;
+                        break;
+                    case '3':
+                        show = rating >= 3;
+                        break;
+                    case 'lacroix':
+                        show = brand === 'lacroix';
+                        break;
+                    case 'spindrift':
+                        show = brand === 'spindrift';
+                        break;
+                }
+
+                item.style.display = show ? 'block' : 'none';
+                if (show) visibleCount++;
+            });
+
+            // Show empty state if no items visible
+            const emptyState = document.getElementById('emptyState');
+            const historyList = document.getElementById('historyList');
+            
+            if (visibleCount === 0) {
+                emptyState.style.display = 'block';
+                historyList.style.display = 'none';
+            } else {
+                emptyState.style.display = 'none';
+                historyList.style.display = 'block';
+            }
+        }
+
+        // Action functions
+        function editSeltzer(id) {
+            console.log('Edit seltzer:', id);
+            alert('Edit functionality will connect to backend later');
+        }
+
+        function deleteSeltzer(id) {
+            if (confirm('Are you sure you want to delete this seltzer?')) {
+                console.log('Delete seltzer:', id);
+                alert('Delete functionality will connect to backend later');
+            }
+        }
+    </script>
+</body>
+</html>
