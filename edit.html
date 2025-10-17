@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Seltzer - SeltzerTracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">←</button>
+            <h1>Edit Seltzer</h1>
+        </div>
+
+        <div class="content">
+            <div class="form-container">
+                <div class="edit-header">
+                    <h2>Edit Seltzer Details</h2>
+                    <div class="edit-actions">
+                        <button class="delete-btn" onclick="showDeleteModal()">Delete</button>
+                    </div>
+                </div>
+
+                <form id="editSeltzerForm">
+                    <div class="form-group">
+                        <label class="form-label" for="name">Name</label>
+                        <input type="text" id="name" class="form-input" placeholder="e.g., LaCroix Lime" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="brand">Brand</label>
+                        <input type="text" id="brand" class="form-input" placeholder="e.g., LaCroix, Spindrift, Bubly" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="flavor">Flavor</label>
+                        <input type="text" id="flavor" class="form-input" placeholder="e.g., Lime, Lemon, Cherry" required>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" class="btn btn-secondary" onclick="goBack()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Seltzer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div class="confirmation-modal" id="deleteModal">
+            <div class="modal-content">
+                <div class="modal-title">Delete Seltzer</div>
+                <div class="modal-text">Are you sure you want to delete this seltzer? This action cannot be undone.</div>
+                <div class="modal-buttons">
+                    <button class="modal-btn modal-btn-cancel" onclick="hideDeleteModal()">Cancel</button>
+                    <button class="modal-btn modal-btn-confirm" onclick="confirmDelete()">Delete</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-bar">
+            <a href="index.html" class="nav-item">
+                <div class="nav-icon">🏠</div>
+                <div>Home</div>
+            </a>
+            <a href="log.html" class="nav-item">
+                <div class="nav-icon">📝</div>
+                <div>Log</div>
+            </a>
+            <a href="history.html" class="nav-item">
+                <div class="nav-icon">📊</div>
+                <div>History</div>
+            </a>
+            <a href="search.html" class="nav-item">
+                <div class="nav-icon">🔍</div>
+                <div>Search</div>
+            </a>
+            <a href="#" class="nav-item">
+                <div class="nav-icon">👤</div>
+                <div>Profile</div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Sample seltzer data - in real app this would come from backend
+        const seltzerData = {
+            id: 1,
+            name: 'LaCroix Lime',
+            brand: 'LaCroix',
+            flavor: 'Lime'
+        };
+
+        // Initialize form with existing data
+        function loadSeltzerData() {
+            document.getElementById('name').value = seltzerData.name;
+            document.getElementById('brand').value = seltzerData.brand;
+            document.getElementById('flavor').value = seltzerData.flavor;
+        }
+
+        // Form submission
+        document.getElementById('editSeltzerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                id: seltzerData.id,
+                name: document.getElementById('name').value,
+                brand: document.getElementById('brand').value,
+                flavor: document.getElementById('flavor').value
+            };
+
+            console.log('Updated seltzer data:', formData);
+            alert('Seltzer updated! (This will connect to backend later)');
+            
+            // In real app, redirect back to history or previous page
+            // window.location.href = 'history.html';
+        });
+
+        // Delete functionality
+        function showDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'flex';
+        }
+
+        function hideDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+        }
+
+        function confirmDelete() {
+            console.log('Delete seltzer:', seltzerData.id);
+            alert('Seltzer deleted! (This will connect to backend later)');
+            hideDeleteModal();
+            
+            // In real app, redirect back to history or previous page
+            // window.location.href = 'history.html';
+        }
+
+        function goBack() {
+            // In real app, this would go back to the previous page (history or search)
+            window.location.href = 'history.html';
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSeltzerData();
+        });
+    </script>
+</body>
+</html>
