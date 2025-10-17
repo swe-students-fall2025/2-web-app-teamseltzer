@@ -28,7 +28,7 @@ As a producer of seltzer, I want to track flavor preferences so I can understand
 
 As a producer of seltzer, I want to see whether people drink more from bottles or cans so I can determine what consumers prefer.
 
-As a producer of seltzer, I want to track purchases by location so I can see preferences across different regions.
+As a producer of seltzer, I want to track purchases by location so I can see preferences across different areas of the world.
 
 ## Steps necessary to run the software
 
