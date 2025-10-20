@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - SeltzerTracker{% endblock %}
+
+{% block content %}
+<div class="profile-header">
+    <div class="profile-avatar">👤</div>
+    <div class="profile-name">{{ current_user.username }}</div>
+    <div class="profile-join-date">Member since {{ current_user.created_at.strftime('%B %Y') }}</div>
+</div>
+
+<div class="content">
+    <div class="stats-section">
+        <div class="section-title">Your Stats</div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalSeltzers">0</div>
+                <div class="stat-label">Total Seltzers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="avgRating">0.0</div>
+                <div class="stat-label">Avg Rating</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="thisMonth">0</div>
+                <div class="stat-label">This Month</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="differentBrands">0</div>
+                <div class="stat-label">Different Brands</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title">Monthly Consumption</div>
+            <div class="chart-placeholder">
+                📊 Chart will show here (connects to backend)
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title">Top Brands</div>
+            <ul class="brand-list" id="topBrands">
+                <!-- Top brands will be loaded here -->
+            </ul>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title">Rating Distribution</div>
+            <div class="chart-placeholder">
+                ⭐ Rating chart will show here (connects to backend)
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-section">
+        <div class="section-title">Settings</div>
+        
+        <div class="setting-item">
+            <span class="setting-label">Notifications</span>
+            <span class="setting-value">On</span>
+        </div>
+        
+        <div class="setting-item">
+            <span class="setting-label">Data Export</span>
+            <span class="setting-value">Available</span>
+        </div>
+        
+        <div class="setting-item">
+            <span class="setting-label">Account</span>
+            <span class="setting-value">Manage</span>
+        </div>
+        
+        <div class="setting-item" onclick="window.location.href='{{ url_for('admin') }}'" style="cursor: pointer;">
+            <span class="setting-label">Admin Panel</span>
+            <span class="setting-value">→</span>
+        </div>
+        
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+</div>
+
+<div class="nav-bar">
+    <a href="{{ url_for('index') }}" class="nav-item">
+        <div class="nav-icon">🏠</div>
+        <div>Home</div>
+    </a>
+    <a href="{{ url_for('log') }}" class="nav-item">
+        <div class="nav-icon">📝</div>
+        <div>Log</div>
+    </a>
+    <a href="{{ url_for('history') }}" class="nav-item">
+        <div class="nav-icon">📊</div>
+        <div>History</div>
+    </a>
+    <a href="{{ url_for('search') }}" class="nav-item">
+        <div class="nav-icon">🔍</div>
+        <div>Search</div>
+    </a>
+    <a href="{{ url_for('profile') }}" class="nav-item active">
+        <div class="nav-icon">👤</div>
+        <div>Profile</div>
+    </a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Load user statistics
+async function loadUserStats() {
+    try {
+        const response = await fetch('/api/stats');
+        const stats = await response.json();
+        
+        document.getElementById('totalSeltzers').textContent = stats.total_seltzers;
+        document.getElementById('avgRating').textContent = stats.avg_rating;
+        document.getElementById('thisMonth').textContent = stats.this_week; // Using this_week as this_month for now
+        document.getElementById('differentBrands').textContent = stats.brand_distribution.length;
+        
+        // Display top brands
+        const topBrandsList = document.getElementById('topBrands');
+        if (stats.brand_distribution.length === 0) {
+            topBrandsList.innerHTML = '<li class="brand-item"><span class="brand-name">No brands yet</span></li>';
+        } else {
+            topBrandsList.innerHTML = stats.brand_distribution.map(brand => `
+                <li class="brand-item">
+                    <span class="brand-name">${brand._id}</span>
+                    <span class="brand-count">${brand.count}</span>
+                </li>
+            `).join('');
+        }
+    } catch (error) {
+        console.error('Error loading user stats:', error);
+    }
+}
+
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        window.location.href = '{{ url_for("logout") }}';
+    }
+}
+
+// Load stats when page loads
+document.addEventListener('DOMContentLoaded', loadUserStats);
+</script>
+{% endblock %}

@@ -32,7 +32,74 @@ As a producer of seltzer, I want to track purchases by location so I can see pre
 
 ## Steps necessary to run the software
 
-See instructions. Delete this line and place instructions to download, configure, and run the software here.
+### Prerequisites
+- Python 3.7 or higher
+- pip3 (Python package manager)
+- MongoDB (local installation or cloud service)
+
+### Quick Setup (Automated)
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd 2-web-app-teamseltzer
+   ```
+
+2. Run the setup script:
+   ```bash
+   python3 setup.py
+   ```
+
+3. Update the `.env` file with your MongoDB credentials:
+   ```bash
+   # Edit .env file
+   MONGODB_URI=mongodb://localhost:27017/seltzertracker
+   MONGODB_DATABASE=seltzertracker
+   ADMIN_PASSWORD=your_secure_admin_password_here
+   SECRET_KEY=your_secret_key_here
+   ```
+
+4. Start MongoDB (if running locally):
+   ```bash
+   mongod
+   ```
+
+5. Run the application:
+   ```bash
+   python3 app.py
+   ```
+
+6. Open your browser to: http://localhost:5000
+
+### Manual Setup
+If the automated setup doesn't work, follow these manual steps:
+
+1. Install Python dependencies:
+   ```bash
+   pip3 install -r requirements.txt
+   ```
+
+2. Create `.env` file from template:
+   ```bash
+   cp env.example .env
+   ```
+
+3. Edit `.env` file with your configuration
+
+4. Start MongoDB and run the application as above
+
+### Default Credentials
+- **Admin Password**: `admin123` (change in .env file)
+- **First User**: Register a new account through the web interface
+
+### Features Available
+- ✅ User registration and authentication
+- ✅ Log seltzer consumption with ratings
+- ✅ View consumption history with filtering
+- ✅ Search seltzers by brand, flavor, or notes
+- ✅ User statistics and profile
+- ✅ Edit and delete seltzer entries
+- ✅ Admin panel for managing brands and flavors
+- ✅ Mobile-optimized responsive design
 
 ## Task boards
 [Task Board](https://github.com/orgs/swe-students-fall2025/projects/23)

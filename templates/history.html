@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}History - SeltzerTracker{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>Seltzer History</h1>
+</div>
+
+<div class="content">
+    <div class="history-header">
+        <h2>Your Seltzers</h2>
+        <button class="filter-btn" onclick="toggleFilter()">Filter</button>
+    </div>
+
+    <div class="filter-group" id="filters" style="display: none;">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="5">5 Stars</button>
+        <button class="filter-btn" data-filter="4">4+ Stars</button>
+        <button class="filter-btn" data-filter="3">3+ Stars</button>
+        <button class="filter-btn" data-filter="polar">Polar</button>
+        <button class="filter-btn" data-filter="lacroix">LaCroix</button>
+        <button class="filter-btn" data-filter="spindrift">Spindrift</button>
+        <button class="filter-btn" data-filter="bubly">Bubly</button>
+    </div>
+
+    <div id="historyList">
+        <!-- History items will be loaded here -->
+    </div>
+
+    <div id="emptyState" class="empty-state" style="display: none;">
+        <div class="empty-state-icon">🥤</div>
+        <h3>No seltzers yet</h3>
+        <p>Start tracking your seltzer consumption!</p>
+        <button class="add-first-btn" onclick="window.location.href='{{ url_for('log') }}'">Log Your First Seltzer</button>
+    </div>
+</div>
+
+<button class="add-button" onclick="window.location.href='{{ url_for('log') }}'">+</button>
+
+<div class="nav-bar">
+    <a href="{{ url_for('index') }}" class="nav-item">
+        <div class="nav-icon">🏠</div>
+        <div>Home</div>
+    </a>
+    <a href="{{ url_for('log') }}" class="nav-item">
+        <div class="nav-icon">📝</div>
+        <div>Log</div>
+    </a>
+    <a href="{{ url_for('history') }}" class="nav-item active">
+        <div class="nav-icon">📊</div>
+        <div>History</div>
+    </a>
+    <a href="{{ url_for('search') }}" class="nav-item">
+        <div class="nav-icon">🔍</div>
+        <div>Search</div>
+    </a>
+    <a href="{{ url_for('profile') }}" class="nav-item">
+        <div class="nav-icon">👤</div>
+        <div>Profile</div>
+    </a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentFilter = 'all';
+let seltzers = [];
+
+// Load seltzers from API
+async function loadSeltzers() {
+    try {
+        const response = await fetch('/api/seltzers');
+        seltzers = await response.json();
+        displaySeltzers(seltzers);
+    } catch (error) {
+        console.error('Error loading seltzers:', error);
+    }
+}
+
+// Display seltzers in the UI
+function displaySeltzers(seltzersToShow) {
+    const historyList = document.getElementById('historyList');
+    const emptyState = document.getElementById('emptyState');
+    
+    if (seltzersToShow.length === 0) {
+        historyList.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+    }
+    
+    historyList.style.display = 'block';
+    emptyState.style.display = 'none';
+    
+    historyList.innerHTML = seltzersToShow.map(seltzer => `
+        <div class="history-item" data-rating="${seltzer.rating}" data-brand="${seltzer.brand_id}" data-flavor="${seltzer.flavor_id}">
+            <div class="history-content">
+                <div class="seltzer-details">
+                    <h4>${seltzer.brand} - ${seltzer.flavor}</h4>
+                    <p>${formatTimeAgo(seltzer.created_at)}</p>
+                </div>
+                <div class="seltzer-rating">${getStarRating(seltzer.rating)}</div>
+            </div>
+            <div class="swipe-actions">
+                <button class="swipe-action edit-action" onclick="editSeltzer('${seltzer._id}')">✏️</button>
+                <button class="swipe-action delete-action" onclick="deleteSeltzer('${seltzer._id}')">🗑️</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Filter functionality
+function toggleFilter() {
+    const filters = document.getElementById('filters');
+    filters.style.display = filters.style.display === 'none' ? 'flex' : 'none';
+}
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        // Remove active class from all buttons
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        // Add active class to clicked button
+        this.classList.add('active');
+        
+        currentFilter = this.dataset.filter;
+        filterHistory();
+    });
+});
+
+function filterHistory() {
+    let filteredSeltzers = seltzers;
+    
+    switch(currentFilter) {
+        case 'all':
+            filteredSeltzers = seltzers;
+            break;
+        case '5':
+            filteredSeltzers = seltzers.filter(s => s.rating === 5);
+            break;
+        case '4':
+            filteredSeltzers = seltzers.filter(s => s.rating >= 4);
+            break;
+        case '3':
+            filteredSeltzers = seltzers.filter(s => s.rating >= 3);
+            break;
+        case 'polar':
+            filteredSeltzers = seltzers.filter(s => s.brand_id === 'polar');
+            break;
+        case 'lacroix':
+            filteredSeltzers = seltzers.filter(s => s.brand_id === 'lacroix');
+            break;
+        case 'spindrift':
+            filteredSeltzers = seltzers.filter(s => s.brand_id === 'spindrift');
+            break;
+        case 'bubly':
+            filteredSeltzers = seltzers.filter(s => s.brand_id === 'bubly');
+            break;
+    }
+    
+    displaySeltzers(filteredSeltzers);
+}
+
+// Action functions
+function editSeltzer(id) {
+    window.location.href = `{{ url_for('edit', seltzer_id='') }}${id}`;
+}
+
+async function deleteSeltzer(id) {
+    if (confirm('Are you sure you want to delete this seltzer?')) {
+        try {
+            const response = await fetch(`/api/seltzers/${id}`, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                // Remove from local array and refresh display
+                seltzers = seltzers.filter(s => s._id !== id);
+                displaySeltzers(seltzers);
+            } else {
+                alert('Error deleting seltzer. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error deleting seltzer:', error);
+            alert('Error deleting seltzer. Please try again.');
+        }
+    }
+}
+
+function getStarRating(rating) {
+    return '★'.repeat(rating) + '☆'.repeat(5 - rating);
+}
+
+function formatTimeAgo(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return 'Just now';
+    if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+    return date.toLocaleDateString();
+}
+
+// Load seltzers when page loads
+document.addEventListener('DOMContentLoaded', loadSeltzers);
+</script>
+{% endblock %}

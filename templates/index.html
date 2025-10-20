@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}SeltzerTracker{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>SeltzerTracker</h1>
+    <div class="user-info">
+        <span>Welcome, {{ current_user.username }}!</span>
+        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+    </div>
+</div>
+
+<div class="content">
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-number" id="thisWeek">0</div>
+            <div class="stat-label">This Week</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="avgRating">0.0</div>
+            <div class="stat-label">Avg Rating</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="topBrand">-</div>
+            <div class="stat-label">Top Brand</div>
+        </div>
+    </div>
+
+    <div class="recent-activity">
+        <div class="section-title">Recent Activity</div>
+        <div id="recentActivity">
+            <!-- Recent activity will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<button class="add-button" onclick="window.location.href='{{ url_for('log') }}'">+</button>
+
+<div class="nav-bar">
+    <a href="{{ url_for('index') }}" class="nav-item active">
+        <div class="nav-icon">🏠</div>
+        <div>Home</div>
+    </a>
+    <a href="{{ url_for('log') }}" class="nav-item">
+        <div class="nav-icon">📝</div>
+        <div>Log</div>
+    </a>
+    <a href="{{ url_for('history') }}" class="nav-item">
+        <div class="nav-icon">📊</div>
+        <div>History</div>
+    </a>
+    <a href="{{ url_for('search') }}" class="nav-item">
+        <div class="nav-icon">🔍</div>
+        <div>Search</div>
+    </a>
+    <a href="{{ url_for('profile') }}" class="nav-item">
+        <div class="nav-icon">👤</div>
+        <div>Profile</div>
+    </a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Load user stats and recent activity
+async function loadDashboardData() {
+    try {
+        // Load stats
+        const statsResponse = await fetch('/api/stats');
+        const stats = await statsResponse.json();
+        
+        document.getElementById('thisWeek').textContent = stats.this_week;
+        document.getElementById('avgRating').textContent = stats.avg_rating;
+        document.getElementById('topBrand').textContent = stats.top_brand;
+        
+        // Load recent activity
+        const activityResponse = await fetch('/api/seltzers?limit=3');
+        const recentSeltzers = await activityResponse.json();
+        
+        const activityContainer = document.getElementById('recentActivity');
+        if (recentSeltzers.length === 0) {
+            activityContainer.innerHTML = '<div class="empty-state">No seltzers logged yet. <a href="{{ url_for("log") }}">Log your first seltzer!</a></div>';
+        } else {
+            activityContainer.innerHTML = recentSeltzers.map(seltzer => `
+                <div class="activity-item">
+                    <div class="seltzer-info">
+                        <h4>${seltzer.brand} - ${seltzer.flavor}</h4>
+                        <p>${formatTimeAgo(seltzer.created_at)}</p>
+                    </div>
+                    <div class="rating">${getStarRating(seltzer.rating)}</div>
+                </div>
+            `).join('');
+        }
+    } catch (error) {
+        console.error('Error loading dashboard data:', error);
+    }
+}
+
+function getStarRating(rating) {
+    return '★'.repeat(rating) + '☆'.repeat(5 - rating);
+}
+
+function formatTimeAgo(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return 'Just now';
+    if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+    return date.toLocaleDateString();
+}
+
+// Load data when page loads
+document.addEventListener('DOMContentLoaded', loadDashboardData);
+</script>
+{% endblock %}

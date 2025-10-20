@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - SeltzerTracker{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <h1>Admin Panel</h1>
+</div>
+
+<div class="content">
+    <div class="admin-section">
+        <h2>Manage Flavors</h2>
+        
+        <div class="brand-selector">
+            <select id="brandSelect" onchange="loadBrandFlavors()">
+                <option value="">Select a brand to manage flavors...</option>
+            </select>
+        </div>
+
+        <div class="flavor-management" id="flavorManagement" style="display: none;">
+            <h3 id="selectedBrandName">Brand Flavors</h3>
+            
+            <ul class="flavor-list" id="flavorList">
+                <!-- Flavors will be loaded here -->
+            </ul>
+
+            <div class="add-flavor-form">
+                <input type="text" id="newFlavorInput" class="add-flavor-input" placeholder="Enter new flavor name...">
+                <button class="add-flavor-btn" onclick="addFlavor()">Add Flavor</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-section">
+        <h2>System Information</h2>
+        <div class="flavor-management">
+            <p><strong>Total Brands:</strong> <span id="totalBrands">0</span></p>
+            <p><strong>Total Flavors:</strong> <span id="totalFlavors">0</span></p>
+            <p><strong>Total Reviews:</strong> <span id="totalReviews">0</span></p>
+            <p><strong>Active Users:</strong> <span id="activeUsers">0</span></p>
+        </div>
+    </div>
+</div>
+
+<div class="nav-bar">
+    <a href="{{ url_for('index') }}" class="nav-item">
+        <div class="nav-icon">🏠</div>
+        <div>Home</div>
+    </a>
+    <a href="{{ url_for('log') }}" class="nav-item">
+        <div class="nav-icon">📝</div>
+        <div>Log</div>
+    </a>
+    <a href="{{ url_for('history') }}" class="nav-item">
+        <div class="nav-icon">📊</div>
+        <div>History</div>
+    </a>
+    <a href="{{ url_for('search') }}" class="nav-item">
+        <div class="nav-icon">🔍</div>
+        <div>Search</div>
+    </a>
+    <a href="{{ url_for('profile') }}" class="nav-item">
+        <div class="nav-icon">👤</div>
+        <div>Profile</div>
+    </a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let brands = [];
+
+// Load brands from API
+async function loadBrands() {
+    try {
+        const response = await fetch('/api/brands');
+        brands = await response.json();
+        
+        const brandSelect = document.getElementById('brandSelect');
+        brands.forEach(brand => {
+            const option = document.createElement('option');
+            option.value = brand.id;
+            option.textContent = brand.name;
+            brandSelect.appendChild(option);
+        });
+        
+        // Update system info
+        document.getElementById('totalBrands').textContent = brands.length;
+        document.getElementById('totalFlavors').textContent = brands.reduce((total, brand) => total + brand.flavors.length, 0);
+    } catch (error) {
+        console.error('Error loading brands:', error);
+    }
+}
+
+// Load flavors for selected brand
+function loadBrandFlavors() {
+    const brandSelect = document.getElementById('brandSelect');
+    const selectedBrand = brandSelect.value;
+    const flavorManagement = document.getElementById('flavorManagement');
+    const selectedBrandName = document.getElementById('selectedBrandName');
+    const flavorList = document.getElementById('flavorList');
+
+    if (selectedBrand) {
+        const brand = brands.find(b => b.id === selectedBrand);
+        if (brand) {
+            flavorManagement.style.display = 'block';
+            selectedBrandName.textContent = `${brand.name} Flavors`;
+            
+            // Clear existing flavors
+            flavorList.innerHTML = '';
+            
+            // Add current flavors
+            brand.flavors.forEach((flavor, index) => {
+                const li = document.createElement('li');
+                li.className = 'flavor-item';
+                li.innerHTML = `
+                    <span class="flavor-name">${flavor}</span>
+                    <button class="remove-flavor-btn" onclick="removeFlavor('${selectedBrand}', '${flavor}')">Remove</button>
+                `;
+                flavorList.appendChild(li);
+            });
+        }
+    } else {
+        flavorManagement.style.display = 'none';
+    }
+}
+
+// Add new flavor
+async function addFlavor() {
+    const brandSelect = document.getElementById('brandSelect');
+    const selectedBrand = brandSelect.value;
+    const newFlavorInput = document.getElementById('newFlavorInput');
+    const newFlavor = newFlavorInput.value.trim();
+
+    if (!selectedBrand) {
+        alert('Please select a brand first.');
+        return;
+    }
+
+    if (!newFlavor) {
+        alert('Please enter a flavor name.');
+        return;
+    }
+
+    const brand = brands.find(b => b.id === selectedBrand);
+    if (brand && brand.flavors.includes(newFlavor)) {
+        alert('This flavor already exists for this brand.');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/brands/${selectedBrand}/flavors`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ flavor_name: newFlavor })
+        });
+
+        if (response.ok) {
+            // Update local data
+            brand.flavors.push(newFlavor);
+            document.getElementById('totalFlavors').textContent = brands.reduce((total, brand) => total + brand.flavors.length, 0);
+            
+            // Refresh the flavor list
+            loadBrandFlavors();
+            
+            // Clear input
+            newFlavorInput.value = '';
+            
+            alert(`Flavor "${newFlavor}" added successfully!`);
+        } else {
+            const result = await response.json();
+            alert(result.message || 'Error adding flavor');
+        }
+    } catch (error) {
+        console.error('Error adding flavor:', error);
+        alert('Error adding flavor. Please try again.');
+    }
+}
+
+// Remove flavor
+async function removeFlavor(brandId, flavorName) {
+    if (confirm(`Are you sure you want to remove "${flavorName}" from this brand?`)) {
+        try {
+            const response = await fetch(`/api/brands/${brandId}/flavors`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ flavor_name: flavorName })
+            });
+
+            if (response.ok) {
+                // Update local data
+                const brand = brands.find(b => b.id === brandId);
+                if (brand) {
+                    brand.flavors = brand.flavors.filter(f => f !== flavorName);
+                    document.getElementById('totalFlavors').textContent = brands.reduce((total, brand) => total + brand.flavors.length, 0);
+                }
+                
+                loadBrandFlavors();
+                alert(`Flavor "${flavorName}" removed successfully!`);
+            } else {
+                const result = await response.json();
+                alert(result.message || 'Error removing flavor');
+            }
+        } catch (error) {
+            console.error('Error removing flavor:', error);
+            alert('Error removing flavor. Please try again.');
+        }
+    }
+}
+
+// Handle Enter key in flavor input
+document.getElementById('newFlavorInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        addFlavor();
+    }
+});
+
+// Load brands when page loads
+document.addEventListener('DOMContentLoaded', loadBrands);
+</script>
+{% endblock %}
