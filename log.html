@@ -18,12 +18,22 @@
                 <form id="seltzerForm">
                     <div class="form-group">
                         <label class="form-label" for="brand">Brand</label>
-                        <input type="text" id="brand" class="form-input" placeholder="e.g., LaCroix, Spindrift, Bubly" required>
+                        <select id="brand" class="form-input" required onchange="loadFlavors()">
+                            <option value="">Select a brand...</option>
+                            <option value="polar">Polar Seltzer</option>
+                            <option value="lacroix">LaCroix</option>
+                            <option value="spindrift">Spindrift</option>
+                            <option value="bubly">Bubly</option>
+                            <option value="aha">AHA</option>
+                            <option value="perrier">Perrier</option>
+                        </select>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label" for="flavor">Flavor</label>
-                        <input type="text" id="flavor" class="form-input" placeholder="e.g., Lime, Lemon, Cherry" required>
+                        <select id="flavor" class="form-input" required disabled>
+                            <option value="">Select a brand first...</option>
+                        </select>
                     </div>
 
                     <div class="form-group">
@@ -79,15 +89,15 @@
                 <div class="nav-icon">📝</div>
                 <div>Log</div>
             </a>
-            <a href="#" class="nav-item">
+            <a href="history.html" class="nav-item">
                 <div class="nav-icon">📊</div>
                 <div>History</div>
             </a>
-            <a href="#" class="nav-item">
+            <a href="search.html" class="nav-item">
                 <div class="nav-icon">🔍</div>
                 <div>Search</div>
             </a>
-            <a href="#" class="nav-item">
+            <a href="profile.html" class="nav-item">
                 <div class="nav-icon">👤</div>
                 <div>Profile</div>
             </a>
@@ -95,10 +105,47 @@
     </div>
 
     <script>
+        // Brand-flavor data structure
+        const brandFlavors = {
+            'polar': ['Lime', 'Lemon', 'Orange', 'Grapefruit', 'Cranberry', 'Raspberry', 'Black Cherry', 'Vanilla'],
+            'lacroix': ['Lime', 'Lemon', 'Orange', 'Grapefruit', 'Coconut', 'Pamplemousse', 'Passionfruit', 'Mango'],
+            'spindrift': ['Lemon', 'Orange Mango', 'Grapefruit', 'Cranberry Raspberry', 'Cucumber', 'Blackberry'],
+            'bubly': ['Lime', 'Lemon', 'Cherry', 'Grapefruit', 'Orange', 'Strawberry', 'Apple', 'Mango'],
+            'aha': ['Lime + Watermelon', 'Orange + Grapefruit', 'Strawberry + Cucumber', 'Black Cherry + Coffee'],
+            'perrier': ['Original', 'Lime', 'Lemon', 'Grapefruit', 'Green Apple', 'Pink Grapefruit']
+        };
+
         // Set default date and time to now
         const now = new Date();
         document.getElementById('date').value = now.toISOString().split('T')[0];
         document.getElementById('time').value = now.toTimeString().slice(0, 5);
+
+        // Load flavors based on selected brand
+        function loadFlavors() {
+            const brandSelect = document.getElementById('brand');
+            const flavorSelect = document.getElementById('flavor');
+            const selectedBrand = brandSelect.value;
+
+            // Clear existing options
+            flavorSelect.innerHTML = '<option value="">Select a flavor...</option>';
+
+            if (selectedBrand && brandFlavors[selectedBrand]) {
+                // Enable flavor select
+                flavorSelect.disabled = false;
+                
+                // Add flavor options
+                brandFlavors[selectedBrand].forEach(flavor => {
+                    const option = document.createElement('option');
+                    option.value = flavor.toLowerCase().replace(/\s+/g, '-');
+                    option.textContent = flavor;
+                    flavorSelect.appendChild(option);
+                });
+            } else {
+                // Disable flavor select
+                flavorSelect.disabled = true;
+                flavorSelect.innerHTML = '<option value="">Select a brand first...</option>';
+            }
+        }
 
         // Star rating functionality
         const stars = document.querySelectorAll('.star');
@@ -133,9 +180,14 @@
         document.getElementById('seltzerForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            const brandSelect = document.getElementById('brand');
+            const flavorSelect = document.getElementById('flavor');
+            
             const formData = {
-                brand: document.getElementById('brand').value,
-                flavor: document.getElementById('flavor').value,
+                brand: brandSelect.options[brandSelect.selectedIndex].text,
+                brandId: brandSelect.value,
+                flavor: flavorSelect.options[flavorSelect.selectedIndex].text,
+                flavorId: flavorSelect.value,
                 rating: currentRating,
                 date: document.getElementById('date').value,
                 time: document.getElementById('time').value,
@@ -143,8 +195,8 @@
                 photo: document.getElementById('photo').files[0]
             };
 
-            console.log('Seltzer data:', formData);
-            alert('Seltzer logged! (This will connect to backend later)');
+            console.log('Seltzer review data:', formData);
+            alert('Seltzer review logged! (This will connect to backend later)');
             
             // Reset form
             this.reset();
@@ -152,6 +204,8 @@
             updateStars();
             document.getElementById('date').value = new Date().toISOString().split('T')[0];
             document.getElementById('time').value = new Date().toTimeString().slice(0, 5);
+            document.getElementById('flavor').disabled = true;
+            document.getElementById('flavor').innerHTML = '<option value="">Select a brand first...</option>';
         });
 
         function goBack() {

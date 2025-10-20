@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - SeltzerTracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="admin-header">
+            <h1>Admin Panel</h1>
+        </div>
+
+        <div class="content">
+            <div class="admin-section">
+                <h2>Manage Flavors</h2>
+                
+                <div class="brand-selector">
+                    <select id="brandSelect" onchange="loadBrandFlavors()">
+                        <option value="">Select a brand to manage flavors...</option>
+                        <option value="polar">Polar Seltzer</option>
+                        <option value="lacroix">LaCroix</option>
+                        <option value="spindrift">Spindrift</option>
+                        <option value="bubly">Bubly</option>
+                        <option value="aha">AHA</option>
+                        <option value="perrier">Perrier</option>
+                    </select>
+                </div>
+
+                <div class="flavor-management" id="flavorManagement" style="display: none;">
+                    <h3 id="selectedBrandName">Brand Flavors</h3>
+                    
+                    <ul class="flavor-list" id="flavorList">
+                        <!-- Flavors will be loaded here -->
+                    </ul>
+
+                    <div class="add-flavor-form">
+                        <input type="text" id="newFlavorInput" class="add-flavor-input" placeholder="Enter new flavor name...">
+                        <button class="add-flavor-btn" onclick="addFlavor()">Add Flavor</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h2>System Information</h2>
+                <div class="flavor-management">
+                    <p><strong>Total Brands:</strong> 6</p>
+                    <p><strong>Total Flavors:</strong> 42</p>
+                    <p><strong>Total Reviews:</strong> 1,247</p>
+                    <p><strong>Active Users:</strong> 89</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Password Prompt Modal -->
+        <div class="password-prompt" id="passwordPrompt">
+            <div class="password-modal">
+                <h3>Admin Access Required</h3>
+                <p>Please enter the admin password to access this page.</p>
+                <input type="password" id="adminPassword" class="password-input" placeholder="Admin password">
+                <button class="password-btn" onclick="checkPassword()">Access Admin Panel</button>
+                <div id="passwordError" class="password-error" style="display: none;">Incorrect password. Please try again.</div>
+            </div>
+        </div>
+
+        <div class="nav-bar">
+            <a href="index.html" class="nav-item">
+                <div class="nav-icon">🏠</div>
+                <div>Home</div>
+            </a>
+            <a href="log.html" class="nav-item">
+                <div class="nav-icon">📝</div>
+                <div>Log</div>
+            </a>
+            <a href="history.html" class="nav-item">
+                <div class="nav-icon">📊</div>
+                <div>History</div>
+            </a>
+            <a href="search.html" class="nav-item">
+                <div class="nav-icon">🔍</div>
+                <div>Search</div>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <div class="nav-icon">👤</div>
+                <div>Profile</div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Admin password (in real app, this would come from .env)
+        const ADMIN_PASSWORD = 'admin123'; // This should be loaded from .env file
+        
+        // Brand-flavor data structure (same as other pages)
+        let brandFlavors = {
+            'polar': ['Lime', 'Lemon', 'Orange', 'Grapefruit', 'Cranberry', 'Raspberry', 'Black Cherry', 'Vanilla'],
+            'lacroix': ['Lime', 'Lemon', 'Orange', 'Grapefruit', 'Coconut', 'Pamplemousse', 'Passionfruit', 'Mango'],
+            'spindrift': ['Lemon', 'Orange Mango', 'Grapefruit', 'Cranberry Raspberry', 'Cucumber', 'Blackberry'],
+            'bubly': ['Lime', 'Lemon', 'Cherry', 'Grapefruit', 'Orange', 'Strawberry', 'Apple', 'Mango'],
+            'aha': ['Lime + Watermelon', 'Orange + Grapefruit', 'Strawberry + Cucumber', 'Black Cherry + Coffee'],
+            'perrier': ['Original', 'Lime', 'Lemon', 'Grapefruit', 'Green Apple', 'Pink Grapefruit']
+        };
+
+        // Check if user is already authenticated
+        function checkAuth() {
+            const isAuthenticated = sessionStorage.getItem('adminAuthenticated') === 'true';
+            if (!isAuthenticated) {
+                document.getElementById('passwordPrompt').style.display = 'flex';
+            }
+        }
+
+        // Password verification
+        function checkPassword() {
+            const password = document.getElementById('adminPassword').value;
+            const errorDiv = document.getElementById('passwordError');
+            
+            if (password === ADMIN_PASSWORD) {
+                sessionStorage.setItem('adminAuthenticated', 'true');
+                document.getElementById('passwordPrompt').style.display = 'none';
+            } else {
+                errorDiv.style.display = 'block';
+                document.getElementById('adminPassword').value = '';
+            }
+        }
+
+        // Load flavors for selected brand
+        function loadBrandFlavors() {
+            const brandSelect = document.getElementById('brandSelect');
+            const selectedBrand = brandSelect.value;
+            const flavorManagement = document.getElementById('flavorManagement');
+            const selectedBrandName = document.getElementById('selectedBrandName');
+            const flavorList = document.getElementById('flavorList');
+
+            if (selectedBrand && brandFlavors[selectedBrand]) {
+                flavorManagement.style.display = 'block';
+                selectedBrandName.textContent = `${brandSelect.options[brandSelect.selectedIndex].text} Flavors`;
+                
+                // Clear existing flavors
+                flavorList.innerHTML = '';
+                
+                // Add current flavors
+                brandFlavors[selectedBrand].forEach((flavor, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'flavor-item';
+                    li.innerHTML = `
+                        <span class="flavor-name">${flavor}</span>
+                        <button class="remove-flavor-btn" onclick="removeFlavor('${selectedBrand}', ${index})">Remove</button>
+                    `;
+                    flavorList.appendChild(li);
+                });
+            } else {
+                flavorManagement.style.display = 'none';
+            }
+        }
+
+        // Add new flavor
+        function addFlavor() {
+            const brandSelect = document.getElementById('brandSelect');
+            const selectedBrand = brandSelect.value;
+            const newFlavorInput = document.getElementById('newFlavorInput');
+            const newFlavor = newFlavorInput.value.trim();
+
+            if (!selectedBrand) {
+                alert('Please select a brand first.');
+                return;
+            }
+
+            if (!newFlavor) {
+                alert('Please enter a flavor name.');
+                return;
+            }
+
+            if (brandFlavors[selectedBrand].includes(newFlavor)) {
+                alert('This flavor already exists for this brand.');
+                return;
+            }
+
+            // Add flavor to data structure
+            brandFlavors[selectedBrand].push(newFlavor);
+            
+            // Refresh the flavor list
+            loadBrandFlavors();
+            
+            // Clear input
+            newFlavorInput.value = '';
+            
+            console.log(`Added flavor "${newFlavor}" to ${brandSelect.options[brandSelect.selectedIndex].text}`);
+            alert(`Flavor "${newFlavor}" added successfully!`);
+        }
+
+        // Remove flavor
+        function removeFlavor(brand, index) {
+            const flavorName = brandFlavors[brand][index];
+            
+            if (confirm(`Are you sure you want to remove "${flavorName}" from this brand?`)) {
+                brandFlavors[brand].splice(index, 1);
+                loadBrandFlavors();
+                console.log(`Removed flavor "${flavorName}" from ${brand}`);
+                alert(`Flavor "${flavorName}" removed successfully!`);
+            }
+        }
+
+        // Handle Enter key in flavor input
+        document.getElementById('newFlavorInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addFlavor();
+            }
+        });
+
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+        });
+    </script>
+</body>
+</html>

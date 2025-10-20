@@ -18,20 +18,22 @@
                 <button class="filter-btn" onclick="toggleFilter()">Filter</button>
             </div>
 
-            <div class="filter-group" id="filters" style="display: none;">
-                <button class="filter-btn active" data-filter="all">All</button>
-                <button class="filter-btn" data-filter="5">5 Stars</button>
-                <button class="filter-btn" data-filter="4">4+ Stars</button>
-                <button class="filter-btn" data-filter="3">3+ Stars</button>
-                <button class="filter-btn" data-filter="lacroix">LaCroix</button>
-                <button class="filter-btn" data-filter="spindrift">Spindrift</button>
-            </div>
+                <div class="filter-group" id="filters" style="display: none;">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="5">5 Stars</button>
+                    <button class="filter-btn" data-filter="4">4+ Stars</button>
+                    <button class="filter-btn" data-filter="3">3+ Stars</button>
+                    <button class="filter-btn" data-filter="polar">Polar</button>
+                    <button class="filter-btn" data-filter="lacroix">LaCroix</button>
+                    <button class="filter-btn" data-filter="spindrift">Spindrift</button>
+                    <button class="filter-btn" data-filter="bubly">Bubly</button>
+                </div>
 
             <div id="historyList">
-                <div class="history-item" data-rating="4" data-brand="lacroix">
+                <div class="history-item" data-rating="4" data-brand="polar" data-flavor="lime">
                     <div class="history-content">
                         <div class="seltzer-details">
-                            <h4>LaCroix - Lime</h4>
+                            <h4>Polar Seltzer - Lime</h4>
                             <p>2 hours ago</p>
                         </div>
                         <div class="seltzer-rating">★★★★☆</div>
@@ -42,7 +44,7 @@
                     </div>
                 </div>
 
-                <div class="history-item" data-rating="5" data-brand="spindrift">
+                <div class="history-item" data-rating="5" data-brand="spindrift" data-flavor="lemon">
                     <div class="history-content">
                         <div class="seltzer-details">
                             <h4>Spindrift - Lemon</h4>
@@ -56,7 +58,7 @@
                     </div>
                 </div>
 
-                <div class="history-item" data-rating="3" data-brand="bubly">
+                <div class="history-item" data-rating="3" data-brand="bubly" data-flavor="cherry">
                     <div class="history-content">
                         <div class="seltzer-details">
                             <h4>Bubly - Cherry</h4>
@@ -70,7 +72,7 @@
                     </div>
                 </div>
 
-                <div class="history-item" data-rating="4" data-brand="lacroix">
+                <div class="history-item" data-rating="4" data-brand="lacroix" data-flavor="grapefruit">
                     <div class="history-content">
                         <div class="seltzer-details">
                             <h4>LaCroix - Grapefruit</h4>
@@ -84,7 +86,7 @@
                     </div>
                 </div>
 
-                <div class="history-item" data-rating="5" data-brand="spindrift">
+                <div class="history-item" data-rating="5" data-brand="spindrift" data-flavor="orange-mango">
                     <div class="history-content">
                         <div class="seltzer-details">
                             <h4>Spindrift - Orange Mango</h4>
@@ -122,11 +124,11 @@
                 <div class="nav-icon">📊</div>
                 <div>History</div>
             </a>
-            <a href="#" class="nav-item">
+            <a href="search.html" class="nav-item">
                 <div class="nav-icon">🔍</div>
                 <div>Search</div>
             </a>
-            <a href="#" class="nav-item">
+            <a href="profile.html" class="nav-item">
                 <div class="nav-icon">👤</div>
                 <div>Profile</div>
             </a>
@@ -176,11 +178,17 @@
                     case '3':
                         show = rating >= 3;
                         break;
+                    case 'polar':
+                        show = brand === 'polar';
+                        break;
                     case 'lacroix':
                         show = brand === 'lacroix';
                         break;
                     case 'spindrift':
                         show = brand === 'spindrift';
+                        break;
+                    case 'bubly':
+                        show = brand === 'bubly';
                         break;
                 }
 
