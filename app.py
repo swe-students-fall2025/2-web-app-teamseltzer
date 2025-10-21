@@ -181,18 +181,40 @@ def is_admin():
     """Check if current user is an admin"""
     if not current_user.is_authenticated:
         return False
-    # Simple admin check - you can modify this logic as needed
-    # For now, any logged-in user can access admin features
-    # In production, you might want to add an 'is_admin' field to users
-    return True
+    # Check if user has admin session
+    return session.get('is_admin', False)
 
 @app.route('/admin')
 @login_required
 def admin():
-    if not is_admin():
-        flash('Access denied. Admin privileges required.', 'error')
-        return redirect(url_for('index'))
-    return render_template('admin.html')
+    # Check if user already has admin access
+    if is_admin():
+        return render_template('admin.html')
+    
+    # If not, show password prompt
+    return render_template('admin_login.html')
+
+@app.route('/admin/verify', methods=['POST'])
+@login_required
+def verify_admin_password():
+    """Verify admin password and grant admin access"""
+    data = request.get_json()
+    password = data.get('password', '')
+    
+    admin_password = os.getenv('ADMIN_PASSWORD', 'admin123')
+    
+    if password == admin_password:
+        session['is_admin'] = True
+        return jsonify({'success': True, 'message': 'Admin access granted'})
+    else:
+        return jsonify({'success': False, 'message': 'Invalid admin password'})
+
+@app.route('/admin/logout')
+@login_required
+def admin_logout():
+    """Remove admin privileges"""
+    session.pop('is_admin', None)
+    return redirect(url_for('index'))
 
 # API Routes
 @app.route('/api/seltzers', methods=['GET'])
