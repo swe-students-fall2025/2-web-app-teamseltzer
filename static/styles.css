@@ -1050,6 +1050,224 @@ body {
     margin-top: 8px;
 }
 
+/* Admin Panel Styles */
+.admin-section {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.admin-section h2 {
+    color: #2C3E50;
+    margin-bottom: 16px;
+    font-size: 20px;
+}
+
+.admin-section h3 {
+    color: #34495E;
+    margin-bottom: 12px;
+    font-size: 16px;
+}
+
+.brand-management {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.add-brand-form {
+    background: #F8F9FA;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid #E9ECEF;
+}
+
+.form-group {
+    margin-bottom: 12px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #E9ECEF;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #00B4DB;
+}
+
+.add-brand-btn {
+    background: #28A745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.add-brand-btn:hover {
+    background: #218838;
+}
+
+.brand-list-section {
+    margin-top: 16px;
+}
+
+.brand-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.brand-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid #E9ECEF;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    background: white;
+}
+
+.brand-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.brand-name {
+    font-weight: 600;
+    color: #2C3E50;
+    font-size: 14px;
+}
+
+.brand-id {
+    color: #6C757D;
+    font-size: 12px;
+    font-family: monospace;
+}
+
+.flavor-count {
+    color: #6C757D;
+    font-size: 12px;
+}
+
+.brand-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.delete-brand-btn {
+    background: #DC3545;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.delete-brand-btn:hover {
+    background: #C82333;
+}
+
+.brand-selector {
+    margin-bottom: 16px;
+}
+
+.brand-selector select {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #E9ECEF;
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+}
+
+.flavor-management {
+    background: #F8F9FA;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid #E9ECEF;
+}
+
+.flavor-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 16px 0;
+}
+
+.flavor-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: white;
+    border: 1px solid #E9ECEF;
+    border-radius: 4px;
+    margin-bottom: 6px;
+}
+
+.flavor-name {
+    font-weight: 500;
+    color: #2C3E50;
+}
+
+.remove-flavor-btn {
+    background: #FF6B35;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.remove-flavor-btn:hover {
+    background: #E55A2B;
+}
+
+.add-flavor-form {
+    display: flex;
+    gap: 8px;
+}
+
+.add-flavor-input {
+    flex: 1;
+    padding: 8px;
+    border: 2px solid #E9ECEF;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.add-flavor-input:focus {
+    outline: none;
+    border-color: #00B4DB;
+}
+
+.add-flavor-btn {
+    background: #00B4DB;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.add-flavor-btn:hover {
+    background: #0099C7;
+}
+
 /* Authentication styles */
 .auth-container {
     padding: 20px;

@@ -9,6 +9,32 @@
 
 <div class="content">
     <div class="admin-section">
+        <h2>Manage Brands</h2>
+        
+        <div class="brand-management">
+            <div class="add-brand-form">
+                <h3>Add New Brand</h3>
+                <div class="form-group">
+                    <input type="text" id="newBrandName" class="form-input" placeholder="Brand name (e.g., Coca-Cola)" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="newBrandId" class="form-input" placeholder="Brand ID (optional, auto-generated if empty)">
+                </div>
+                <div class="form-group">
+                    <input type="text" id="initialFlavors" class="form-input" placeholder="Initial flavors (comma-separated, optional)">
+                </div>
+                <button class="add-brand-btn" onclick="addBrand()">Add Brand</button>
+            </div>
+            
+            <div class="brand-list-section">
+                <h3>Existing Brands</h3>
+                <ul class="brand-list" id="brandList">
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-section">
         <h2>Manage Flavors</h2>
         
         <div class="brand-selector">
@@ -76,7 +102,9 @@ async function loadBrands() {
         const response = await fetch('/api/brands');
         brands = await response.json();
         
+        // Update brand select dropdown
         const brandSelect = document.getElementById('brandSelect');
+        brandSelect.innerHTML = '<option value="">Select a brand to manage flavors...</option>';
         brands.forEach(brand => {
             const option = document.createElement('option');
             option.value = brand.id;
@@ -84,12 +112,37 @@ async function loadBrands() {
             brandSelect.appendChild(option);
         });
         
+        // Update brand list
+        updateBrandList();
+        
         // Update system info
         document.getElementById('totalBrands').textContent = brands.length;
         document.getElementById('totalFlavors').textContent = brands.reduce((total, brand) => total + brand.flavors.length, 0);
     } catch (error) {
         console.error('Error loading brands:', error);
     }
+}
+
+// Update the brand list display
+function updateBrandList() {
+    const brandList = document.getElementById('brandList');
+    brandList.innerHTML = '';
+    
+    brands.forEach(brand => {
+        const li = document.createElement('li');
+        li.className = 'brand-item';
+        li.innerHTML = `
+            <div class="brand-info">
+                <span class="brand-name">${brand.name}</span>
+                <span class="brand-id">(${brand.id})</span>
+                <span class="flavor-count">${brand.flavors.length} flavors</span>
+            </div>
+            <div class="brand-actions">
+                <button class="delete-brand-btn" onclick="deleteBrand('${brand.id}', '${brand.name}')">Delete</button>
+            </div>
+        `;
+        brandList.appendChild(li);
+    });
 }
 
 // Load flavors for selected brand
@@ -212,10 +265,104 @@ async function removeFlavor(brandId, flavorName) {
     }
 }
 
+// Add new brand
+async function addBrand() {
+    const brandName = document.getElementById('newBrandName').value.trim();
+    const brandId = document.getElementById('newBrandId').value.trim();
+    const initialFlavorsInput = document.getElementById('initialFlavors').value.trim();
+    
+    if (!brandName) {
+        alert('Please enter a brand name.');
+        return;
+    }
+    
+    // Parse initial flavors
+    const initialFlavors = initialFlavorsInput ? 
+        initialFlavorsInput.split(',').map(f => f.trim()).filter(f => f) : [];
+    
+    try {
+        const response = await fetch('/api/brands', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                brand_name: brandName,
+                brand_id: brandId,
+                initial_flavors: initialFlavors
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Add to local brands array
+            brands.push(result.brand);
+            
+            // Refresh the display
+            loadBrands();
+            
+            // Clear form
+            document.getElementById('newBrandName').value = '';
+            document.getElementById('newBrandId').value = '';
+            document.getElementById('initialFlavors').value = '';
+            
+            alert(`Brand "${brandName}" added successfully!`);
+        } else {
+            alert(result.message || 'Error adding brand');
+        }
+    } catch (error) {
+        console.error('Error adding brand:', error);
+        alert('Error adding brand. Please try again.');
+    }
+}
+
+// Delete brand
+async function deleteBrand(brandId, brandName) {
+    if (confirm(`Are you sure you want to delete the brand "${brandName}"?\n\nThis action cannot be undone and will remove all flavors associated with this brand.`)) {
+        try {
+            const response = await fetch(`/api/brands/${brandId}`, {
+                method: 'DELETE'
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Remove from local brands array
+                brands = brands.filter(b => b.id !== brandId);
+                
+                // Refresh the display
+                loadBrands();
+                
+                // Clear flavor management if this brand was selected
+                const brandSelect = document.getElementById('brandSelect');
+                if (brandSelect.value === brandId) {
+                    brandSelect.value = '';
+                    loadBrandFlavors();
+                }
+                
+                alert(result.message);
+            } else {
+                alert(result.message || 'Error deleting brand');
+            }
+        } catch (error) {
+            console.error('Error deleting brand:', error);
+            alert('Error deleting brand. Please try again.');
+        }
+    }
+}
+
 // Handle Enter key in flavor input
 document.getElementById('newFlavorInput').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
         addFlavor();
+    }
+});
+
+// Handle Enter key in brand name input
+document.getElementById('newBrandName').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        addBrand();
     }
 });
 

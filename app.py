@@ -77,6 +77,16 @@ def init_default_data():
                 'name': 'Perrier',
                 'id': 'perrier',
                 'flavors': ['Original', 'Lime', 'Lemon', 'Grapefruit', 'Green Apple', 'Pink Grapefruit']
+            },
+            {
+                'name': 'Bubbly',
+                'id': 'bubbly',
+                'flavors': ['Cherry', 'Lime']
+            },
+            {
+                'name': 'Vintage Seltzers',
+                'id': 'vintage',
+                'flavors': ['Cherry', 'Lime']
             }
         ]
         brands_collection.insert_many(default_brands)
@@ -167,9 +177,21 @@ def profile():
 def edit(seltzer_id):
     return render_template('edit.html', seltzer_id=seltzer_id)
 
+def is_admin():
+    """Check if current user is an admin"""
+    if not current_user.is_authenticated:
+        return False
+    # Simple admin check - you can modify this logic as needed
+    # For now, any logged-in user can access admin features
+    # In production, you might want to add an 'is_admin' field to users
+    return True
+
 @app.route('/admin')
 @login_required
 def admin():
+    if not is_admin():
+        flash('Access denied. Admin privileges required.', 'error')
+        return redirect(url_for('index'))
     return render_template('admin.html')
 
 # API Routes
@@ -286,6 +308,9 @@ def get_brands():
 @login_required
 def add_flavor(brand_id):
     """Add a new flavor to a brand (admin only)"""
+    if not is_admin():
+        return jsonify({'success': False, 'message': 'Admin privileges required'})
+    
     data = request.get_json()
     flavor_name = data.get('flavor_name')
     
@@ -311,6 +336,9 @@ def add_flavor(brand_id):
 @login_required
 def remove_flavor(brand_id):
     """Remove a flavor from a brand (admin only)"""
+    if not is_admin():
+        return jsonify({'success': False, 'message': 'Admin privileges required'})
+    
     data = request.get_json()
     flavor_name = data.get('flavor_name')
     
@@ -323,6 +351,63 @@ def remove_flavor(brand_id):
     )
     
     return jsonify({'success': True})
+
+@app.route('/api/brands', methods=['POST'])
+@login_required
+def create_brand():
+    """Create a new brand (admin only)"""
+    if not is_admin():
+        return jsonify({'success': False, 'message': 'Admin privileges required'})
+    
+    data = request.get_json()
+    brand_name = data.get('brand_name', '').strip()
+    brand_id = data.get('brand_id', '').strip()
+    initial_flavors = data.get('initial_flavors', [])
+    
+    if not brand_name:
+        return jsonify({'success': False, 'message': 'Brand name is required'})
+    
+    if not brand_id:
+        # Generate brand_id from brand_name (lowercase, replace spaces with hyphens)
+        brand_id = brand_name.lower().replace(' ', '-').replace('&', 'and')
+    
+    # Check if brand already exists
+    if brands_collection.find_one({'$or': [{'name': brand_name}, {'id': brand_id}]}):
+        return jsonify({'success': False, 'message': 'Brand with this name or ID already exists'})
+    
+    # Create new brand
+    brand_data = {
+        'name': brand_name,
+        'id': brand_id,
+        'flavors': initial_flavors if initial_flavors else []
+    }
+    
+    result = brands_collection.insert_one(brand_data)
+    brand_data['_id'] = str(result.inserted_id)
+    
+    return jsonify({'success': True, 'brand': brand_data})
+
+@app.route('/api/brands/<brand_id>', methods=['DELETE'])
+@login_required
+def delete_brand(brand_id):
+    """Delete a brand (admin only)"""
+    if not is_admin():
+        return jsonify({'success': False, 'message': 'Admin privileges required'})
+    
+    # Check if brand exists
+    brand = brands_collection.find_one({'id': brand_id})
+    if not brand:
+        return jsonify({'success': False, 'message': 'Brand not found'})
+    
+    # Check if brand is being used in any seltzer entries
+    seltzer_count = seltzers_collection.count_documents({'brand_id': brand_id})
+    if seltzer_count > 0:
+        return jsonify({'success': False, 'message': f'Cannot delete brand. It is being used in {seltzer_count} seltzer entries.'})
+    
+    # Delete the brand
+    brands_collection.delete_one({'id': brand_id})
+    
+    return jsonify({'success': True, 'message': f'Brand "{brand["name"]}" deleted successfully'})
 
 @app.route('/api/stats', methods=['GET'])
 @login_required
