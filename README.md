@@ -102,4 +102,5 @@ If the automated setup doesn't work, follow these manual steps:
 - ✅ Mobile-optimized responsive design
 
 ## Task boards
-[Task Board](https://github.com/orgs/swe-students-fall2025/projects/23)
+[Task Board 1](https://github.com/orgs/swe-students-fall2025/projects/23)
+[Task Board 2](https://github.com/orgs/swe-students-fall2025/projects/73)
